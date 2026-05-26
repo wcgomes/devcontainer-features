@@ -4,7 +4,14 @@
 
 Each feature lives in `src/<feature>/` with:
 - `devcontainer-feature.json` — metadata + options
-- `install.sh` — entrypoint script
+- `install.sh` — entrypoint script (build time)
+- `postStartCommand.sh` — post-start script (runtime)
+
+## Volume Mount Resilience
+
+Config files and directories that must survive Docker volume mounts must be created or ensured in `postStartCommand.sh`, not only in `install.sh`. Volumes mounted at runtime replace build-time directories; `postStartCommand.sh` runs after volumes are mounted and can recreate any missing state.
+
+`install.sh` may still create these files at build time for the non-volume case, but `postStartCommand.sh` must be the authoritative source for runtime state.
 
 ## Options
 
