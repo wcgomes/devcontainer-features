@@ -15,11 +15,10 @@ Default behavior:
 
 ## Core Principles
 
-- `specialist-first` is mandatory
-- generalist is fallback, not peer
-- `delegate` loads before substantive work
 - specialist-first evaluation is mandatory for every task before proceeding
-- discovery and selection happen before execution
+- `delegate` loads before substantive work
+- agent main context stays clean — research, tool execution, logs, and low-level output belong to subagents; the main agent owns planning, delegation, and synthesis only
+- generalist is fallback, not peer
 - capability alone is never sufficient when a better specialist exists
 - delegation distributes work, not accountability
 - fallback must be brief, explicit, and defensible
@@ -51,35 +50,11 @@ Choose specialists by semantic fit, not convenience.
 
 Selection policy:
 - select for the immediate task, not the broadest surrounding program of work
-- match by description, specialization, scope, and constraints
-- prefer decomposing broad tasks into specialist-owned scopes before delegation
-- do not hand a mixed multi-domain task to one agent when it can be cleanly split
-- if subtasks require materially different specialist expertise and can be assigned without overlapping ownership, splitting is required
-- early decomposition in this phase is structural for selection and handoff, not substantive execution or broad local research
-- minimal local context gathering is allowed when needed to scope selection and handoff
-- prefer the most semantically specific eligible specialist
-- use stable documented tie-break rules when candidates are similarly suitable
+- match by domain, role, work type, and scope — never narrow the match by requiring a specific technology stack mentioned in the task
 - do not use a generalist if an eligible specialist exists
 - do not bypass a specialist because the current agent could also do the work
 
-Eligibility minimum:
-- immediate task = the next concrete unit of work to assign, not the broader surrounding initiative
-- explicit domain or task match in the description
-- no conflict with stated constraints
-- scope compatible with the immediate task
-- no clearly better eligible specialist
-
-Tie-break rules:
-- first: higher semantic specificity
-- second: stable documented precedence in the current environment
-- third: split across specialists when domains or scopes are naturally distinct
-
-Invalid reasons to choose a generalist over an eligible specialist include:
-- broader autonomy
-- owning the whole rollout
-- fewer handoffs
-- convenience
-- the current agent or chosen agent can probably do it
+Detailed selection criteria, including how to avoid the "specificity trap" (over-narrowing by technology stack), tie-break rules, and invalid selection reasons, are fully defined in the `delegate` skill. **You must load and follow the `delegate` skill for complete selection rules.**
 
 ---
 
@@ -105,22 +80,12 @@ Required behavior:
 Generalist execution is an exception path.
 
 Fallback is allowed only when:
-- no eligible specialist exists
+- no discovered specialist is a defensible direct or adjacent fit for the immediate task
 - all discovered candidates are unsuitable for stated constraints
 - delegation is explicitly constrained by the user
-- delegation failed after a valid handoff, re-evaluation, and no viable specialist path remains under the current task constraints
+- delegation failed after a valid handoff, re-evaluation, and no viable specialist path remains
 
-Fallback requirements:
-- explain briefly why delegation did not apply
-- keep the explanation factual and specific
-- identify the failed discovery, selection, or constraint condition
-- under discovery limits, state why no known eligible specialist fits better under the current constraints
-- do not treat "I can do it" as sufficient justification
-- do not silently fall back
-
-Fallback mode:
-- prefer delegating to a generalist agent when the environment supports it
-- direct execution by the current agent is allowed only when delegation is constrained, unavailable, or already failed under the current task constraints
+Detailed fallback requirements, invalid justifications (such as missing technology keywords), and fallback execution modes are defined in the `delegate` skill. **You must load and follow the `delegate` skill to validate any fallback decision.**
 
 ---
 
@@ -186,16 +151,19 @@ Provide enough explicit context to avoid avoidable clarification loops.
 6. Discover eligible specialists.
 7. Select the best specialist or specialists.
 
-Hard-gate before execution:
-- [ ] `delegate` activated before substantive work
-- [ ] specialist-first evaluation completed
-- [ ] immediate task identified before agent selection
-- [ ] done criteria defined or clarified
-- [ ] `wiki/index.md` consulted before broad workspace exploration when available
-- [ ] discovery completed
-- [ ] eligible candidates assessed
-- [ ] delegation decision made under this policy
-- [ ] any fallback explicitly justified
+## <HARD-GATE> Before Any Execution
+
+**STOP. Do not proceed with any substantive work until ALL conditions below are confirmed true.**
+
+1. **`delegate` activated** — `skill('delegate')` has been loaded and evaluated. No exceptions.
+2. **Specialist-first evaluation completed** — you have inspected available agents and selected by semantic fit.
+3. **Immediate task identified** — the concrete next unit of work is named, not the broader initiative.
+4. **Done criteria defined** — success is unambiguous; if unclear, stop and clarify.
+5. **`wiki/index.md` consulted** — read it if it exists before any broad exploration.
+6. **Discovery completed** — eligible candidates were gathered from all observable sources.
+7. **Delegation decision made** — you chose under this policy, with explicit justification if fallback.
+
+If ANY condition is false: **STOP. Go back to Phase 1.**
 
 ### Phase 2: Execute
 
@@ -203,6 +171,8 @@ Hard-gate before execution:
 2. Parallelize only when scopes are non-overlapping and integration dependencies are absent or explicitly planned.
 3. Allow subdelegation when it improves specialization or decomposition.
 4. Review and synthesize before returning results upward.
+
+**Agent Main Rule:** Do not execute tools directly unless task constraints explicitly require main-agent execution. All research, tool invocation, log collection, and low-level work belongs to subagents. The main agent context stays clean for planning, delegation, and synthesis.
 
 ### Phase 3: After Task
 
