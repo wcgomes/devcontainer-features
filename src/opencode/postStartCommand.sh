@@ -8,13 +8,22 @@ autoupdate="${AUTOUPDATE:-true}"
 # ensure volume-mounted config directories exist and have correct ownership
 detect_user() {
   local user="${_REMOTE_USER:-${USERNAME:-}}"
-  if [ -z "$user" ]; then
-    user="$(getent passwd | awk -F: '$3 >= 1000 && $1 !~ /^(nobody|nfsnobody|daemon)$/ {print $1; exit 0}')" || true
+  local valid_user
+
+  valid_user="$(getent passwd | awk -F: '$3 >= 1000 && $1 !~ /^(nobody|nfsnobody|daemon)$/ {print $1; exit 0}')" || true
+  [ -z "$valid_user" ] && valid_user="root"
+
+  if [ -n "$user" ]; then
+    local user_shell
+    user_shell="$(getent passwd "$user" 2>/dev/null | cut -d: -f7)" || true
+    case "$user_shell" in
+      */nologin|*/false|"")
+        user="$valid_user"
+        ;;
+    esac
   fi
-  if [ -z "$user" ]; then
-    user="$(getent passwd | awk -F: '$3 == 0 && $1 == "root" {print $1; exit 0}')" || true
-  fi
-  [ -z "$user" ] && user="root"
+
+  [ -z "$user" ] && user="$valid_user"
   echo "$user"
 }
 
