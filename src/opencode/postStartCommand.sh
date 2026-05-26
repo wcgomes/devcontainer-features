@@ -6,15 +6,19 @@ echo_prefix="[opencode-poststart]"
 autoupdate="${AUTOUPDATE:-true}"
 
 # ensure volume-mounted config directories exist and have correct ownership
-detect_user() {
-  local user="${_REMOTE_USER:-${USERNAME:-}}"
-  local valid_user
+# resolve the user and home matching where install.sh placed the config
+TARGET_USER=""
+TARGET_HOME="${HOME:-}"
 
+if [ -n "$TARGET_HOME" ]; then
+  TARGET_USER="$(getent passwd | awk -F: -v h="$TARGET_HOME" '$6 == h {print $1; exit}')" || true
+fi
+
+if [ -z "$TARGET_USER" ]; then
+  user="${_REMOTE_USER:-${USERNAME:-}}"
   valid_user="$(getent passwd | awk -F: '$3 >= 1000 && $1 !~ /^(nobody|nfsnobody|daemon)$/ {print $1; exit 0}')" || true
   [ -z "$valid_user" ] && valid_user="root"
-
   if [ -n "$user" ]; then
-    local user_shell
     user_shell="$(getent passwd "$user" 2>/dev/null | cut -d: -f7)" || true
     case "$user_shell" in
       */nologin|*/false|"")
@@ -22,14 +26,11 @@ detect_user() {
         ;;
     esac
   fi
-
   [ -z "$user" ] && user="$valid_user"
-  echo "$user"
-}
-
-TARGET_USER="$(detect_user)"
-TARGET_HOME="$(getent passwd "$TARGET_USER" 2>/dev/null | cut -d: -f6)"
-[ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
+  TARGET_USER="$user"
+  TARGET_HOME="$(getent passwd "$TARGET_USER" 2>/dev/null | cut -d: -f6)"
+  [ -z "$TARGET_HOME" ] && TARGET_HOME="/home/$TARGET_USER"
+fi
 
 # recreate directories masked by volume mounts
 mkdir -p "${TARGET_HOME}/.config/opencode"
