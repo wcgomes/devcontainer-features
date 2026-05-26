@@ -8,8 +8,15 @@
 └── validate.yaml      # Validate features
 src/                    # Feature implementations
 ├── opencode/
+│   ├── devcontainer-feature.json  # metadata + options
+│   ├── install.sh                 # build-time setup
+│   ├── postStartCommand.sh        # runtime config (volume resilience)
+│   ├── README.md
+│   └── NOTES.md
+├── agents-workspace/
 │   ├── devcontainer-feature.json
 │   ├── install.sh
+│   ├── postStartCommand.sh
 │   ├── README.md
 │   └── NOTES.md
 └── agency-agents/
