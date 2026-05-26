@@ -54,6 +54,10 @@ ensure_prerequisites() {
     missing="${missing} curl"
   fi
 
+  if ! command -v jq >/dev/null 2>&1; then
+    missing="${missing} jq"
+  fi
+
   if [ ! -f /etc/ssl/certs/ca-certificates.crt ]; then
     missing="${missing} ca-certificates"
   fi
@@ -184,6 +188,29 @@ chown -R "${USERNAME}:${USERNAME}" \
 	"${USER_HOME}/.local" \
 	"${USER_HOME}/.local/share/opencode" \
 	"${USER_HOME}/.local/state/opencode"
+
+log "Configuring LSP in opencode.json..."
+
+opencode_config="${USER_HOME}/.config/opencode/opencode.json"
+
+if [ -f "$opencode_config" ]; then
+  if ! jq -e '.lsp' "$opencode_config" >/dev/null 2>&1; then
+    jq '. + {"lsp": {}}' "$opencode_config" > "${opencode_config}.tmp" && mv "${opencode_config}.tmp" "$opencode_config"
+    log "Added 'lsp' key to existing opencode.json"
+  else
+    log "'lsp' key already exists in opencode.json"
+  fi
+else
+  cat > "$opencode_config" <<'EOF'
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": {}
+}
+EOF
+  log "Created opencode.json with LSP enabled"
+fi
+
+chown "${USERNAME}:${USERNAME}" "$opencode_config"
 
 cat > /usr/local/bin/opencode-fix-permissions <<EOF
 #!/bin/bash

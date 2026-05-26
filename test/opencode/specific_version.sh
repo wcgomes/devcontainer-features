@@ -11,4 +11,10 @@ check "marker file exists for specific version 1.3.17" test -f /usr/local/share/
 
 check "installed version is 1.3.17" bash -c "opencode --version | grep -q '1.3.17'"
 
+check "opencode.json exists" test -f /home/vscode/.config/opencode/opencode.json
+
+check "opencode.json has lsp key" jq -e '.lsp' /home/vscode/.config/opencode/opencode.json
+
+check "opencode.json lsp is empty" test "$(jq '.lsp' /home/vscode/.config/opencode/opencode.json)" = "{}"
+
 reportResults
