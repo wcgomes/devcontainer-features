@@ -83,6 +83,13 @@ ensure_prerequisites
 marker_dir="/usr/local/share/devcontainer-features"
 mkdir -p "$marker_dir"
 
+config_file="$marker_dir/agency-agents.conf"
+cat > "$config_file" <<EOF
+TOOL="${TOOL:-auto}"
+AUTOUPDATE="${AUTOUPDATE:-true}"
+DIVISIONS="${DIVISIONS:-}"
+EOF
+
 poststart_script="$(dirname "$0")/postStartCommand.sh"
 if [ -f "$poststart_script" ]; then
   cp "$poststart_script" "$marker_dir/agency-agents-postStartCommand.sh"
