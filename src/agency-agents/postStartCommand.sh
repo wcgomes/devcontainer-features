@@ -12,6 +12,7 @@ export USERNAME="$TARGET_USER"
 export _REMOTE_USER="$TARGET_USER"
 export TOOL="${TOOL:-auto}"
 export AUTOUPDATE="${AUTOUPDATE:-true}"
+export DIVISIONS="${DIVISIONS:-}"
 
 log() {
   echo "[agency-agents-poststart] $*" >&2
@@ -104,18 +105,20 @@ do_install() {
   chown -R "$TARGET_USER":"$TARGET_USER" "$tmp_dir"
   chmod -R u+rwX,go+rX "$tmp_dir"
 
-  if [ "$(id -un)" = "$TARGET_USER" ]; then
-    if [ "$tool" = "auto" ]; then
-      cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh --no-interactive --parallel
-    else
-      cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh --tool "$tool" --no-interactive
-    fi
+  local install_args="--no-interactive"
+  if [ "$tool" = "auto" ]; then
+    install_args="$install_args --parallel"
   else
-    if [ "$tool" = "auto" ]; then
-      su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --no-interactive --parallel"
-    else
-      su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh --tool '$tool' --no-interactive"
-    fi
+    install_args="$install_args --tool $tool"
+  fi
+  if [ -n "$DIVISIONS" ]; then
+    install_args="$install_args --division $DIVISIONS"
+  fi
+
+  if [ "$(id -un)" = "$TARGET_USER" ]; then
+    cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh $install_args
+  else
+    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh $install_args"
   fi
 
   if should_install_opencode && [ -d "$opencode_agents_src" ]; then

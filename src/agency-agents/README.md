@@ -17,6 +17,7 @@ A complete AI agency at your fingertips - From frontend wizards to Reddit commun
 |-----|-----|-----|-----|
 | tool | Tool name passed to ./scripts/install.sh --tool <tool>. Use 'auto' for --parallel auto-detection. | string | auto |
 | autoupdate | Check for updates on container start | boolean | true |
+| divisions | Comma-separated list of divisions to install (e.g., engineering,security). Leave empty to install all agents. | string |  |
 
 # Agency Agents Feature - Additional Notes
 
@@ -29,6 +30,7 @@ No workspace instructions files are created or modified.
 
 - Install agents for auto-detected tools (`tool=auto`)
 - Install agents for a specific tool (`tool=<name>`)
+- Install only specific divisions (`divisions=engineering,security`)
 
 
 ---

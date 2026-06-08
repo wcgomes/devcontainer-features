@@ -14,6 +14,7 @@ export _REMOTE_USER="$TARGET_USER"
 export TOOL="${TOOL:-all}"
 export INCLUDEAGENCY="${INCLUDEAGENCY:-true}"
 export AUTOUPDATE="${AUTOUPDATE:-true}"
+export DIVISIONS="${DIVISIONS:-}"
 
 log() {
   echo "[agents-workspace-poststart] $*" >&2
@@ -75,7 +76,11 @@ do_install() {
   install_script="$(download_install_script)"
   log "Running install script from $install_script..."
   export HOME="$TARGET_HOME"
-  bash "$install_script" --all || log "Install completed with warnings"
+  if [ -n "$DIVISIONS" ]; then
+    bash "$install_script" --all --division "$DIVISIONS" || log "Install completed with warnings"
+  else
+    bash "$install_script" --all || log "Install completed with warnings"
+  fi
 
   local remote_final_commit
   remote_final_commit="$(get_remote_commit "wcgomes/agents-workspace")"

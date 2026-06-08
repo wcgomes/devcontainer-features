@@ -11,6 +11,7 @@ It supports auto-update by tracking commit IDs from both agents-workspace and ag
 - Install skills for a specific tool (`tool=opencode|claude|copilot|antigravity`)
 - Skip agency-agents installation (`includeAgency=false`)
 - Disable auto-update (`autoupdate=false`)
+- Install only specific agency divisions (`divisions=engineering,security`)
 
 ## Auto-Update Logic
 

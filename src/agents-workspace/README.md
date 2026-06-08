@@ -17,6 +17,7 @@ AI agent workspace with specialist agents for orchestrated, minimal, and self-le
 |-----|-----|-----|-----|
 | tool | Tool to install: opencode, claude, copilot, antigravity, all (default: all) | string | all |
 | includeAgency | Install agency-agents (144+ specialized agents) | boolean | true |
+| divisions | Comma-separated list of divisions to install (e.g., engineering,security). Leave empty to install all agents. | string |  |
 | autoupdate | Check for updates on container start | boolean | true |
 
 # Agents Workspace Feature - Additional Notes
@@ -32,6 +33,7 @@ It supports auto-update by tracking commit IDs from both agents-workspace and ag
 - Install skills for a specific tool (`tool=opencode|claude|copilot|antigravity`)
 - Skip agency-agents installation (`includeAgency=false`)
 - Disable auto-update (`autoupdate=false`)
+- Install only specific agency divisions (`divisions=engineering,security`)
 
 ## Auto-Update Logic
 
