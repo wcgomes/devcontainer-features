@@ -5,6 +5,11 @@ MARKER="${HOME}/.local/share/devcontainer-features/agents-workspace.done"
 COMMIT_FILE="${HOME}/.local/share/devcontainer-features/agents-workspace.commit"
 AGENCY_COMMIT_FILE="${HOME}/.local/share/devcontainer-features/agency-agents.commit"
 
+config_file="/usr/local/share/devcontainer-features/agents-workspace.conf"
+if [ -f "$config_file" ]; then
+  . "$config_file"
+fi
+
 TARGET_USER="${USER:-$(whoami)}"
 [ -z "$TARGET_USER" ] && TARGET_USER="$(getent passwd | awk -F: '$3 >= 1000 {print $1; exit 0}')"
 [ -z "$TARGET_USER" ] && TARGET_USER="vscode"
