@@ -9,3 +9,4 @@ No workspace instructions files are created or modified.
 
 - Install agents for auto-detected tools (`tool=auto`)
 - Install agents for a specific tool (`tool=<name>`)
+- Install only specific divisions (`divisions=engineering,security`)

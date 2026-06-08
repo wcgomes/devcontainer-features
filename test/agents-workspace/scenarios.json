@@ -54,5 +54,13 @@
         "features": {
             "agents-workspace": {}
         }
+    },
+    "divisions": {
+        "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+        "features": {
+            "agents-workspace": {
+                "divisions": "engineering,security"
+            }
+        }
     }
 }
