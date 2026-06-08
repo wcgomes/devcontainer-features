@@ -1,6 +1,6 @@
 {
   "id": "agents-workspace",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "name": "Agents Workspace",
   "description": "AI agent workspace with specialist agents for orchestrated, minimal, and self-learning workflows.",
   "documentationURL": "https://github.com/wcgomes/devcontainer-features?tab=readme-ov-file#feature-agents-workspace",
