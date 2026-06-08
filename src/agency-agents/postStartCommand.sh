@@ -116,12 +116,21 @@ do_install() {
   fi
 
   if [ "$(id -un)" = "$TARGET_USER" ]; then
-    cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh $install_args
+    if [ -n "$DIVISIONS" ]; then
+      OPENCODE_AGENTS_DIR="$opencode_agents_global" \
+        cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh $install_args
+    else
+      cd "$repo_dir" && HOME="$TARGET_HOME" ./scripts/install.sh $install_args
+    fi
   else
-    su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh $install_args"
+    if [ -n "$DIVISIONS" ]; then
+      su - "$TARGET_USER" -c "OPENCODE_AGENTS_DIR='$opencode_agents_global' cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh $install_args"
+    else
+      su - "$TARGET_USER" -c "cd '$repo_dir' && HOME='$TARGET_HOME' ./scripts/install.sh $install_args"
+    fi
   fi
 
-  if should_install_opencode && [ -d "$opencode_agents_src" ]; then
+  if should_install_opencode && [ -d "$opencode_agents_src" ] && [ -z "$DIVISIONS" ]; then
     log "Installing OpenCode agents globally to $opencode_agents_global..."
     mkdir -p "$opencode_agents_global"
     cp "$opencode_agents_src"/*.md "$opencode_agents_global/" 2>/dev/null || true
