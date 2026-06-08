@@ -17,7 +17,7 @@ AI agent workspace with specialist agents for orchestrated, minimal, and self-le
 |-----|-----|-----|-----|
 | tool | Tool to install: opencode, claude, copilot, antigravity, all (default: all) | string | all |
 | includeAgency | Install agency-agents (144+ specialized agents) | boolean | true |
-| divisions | Comma-separated list of divisions to install (e.g., engineering,security). Leave empty to install all agents. | string |  |
+| divisions | Comma-separated list of divisions to install (e.g., engineering,security). Leave empty to install all agents. | string | - |
 | autoupdate | Check for updates on container start | boolean | true |
 
 # Agents Workspace Feature - Additional Notes
