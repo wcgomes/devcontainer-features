@@ -1,225 +1,48 @@
 # AGENTS.md
 
-## System Goal
+## The One Rule
 
-Enforce a `specialist-first, subagent-driven workflow`.
+**The main agent never does the work. It delegates every unit of work to a subagent.**
 
-Default behavior:
-- discover specialists before execution
-- decompose broad tasks into specialist-owned scopes before delegation
-- select the best semantic match
-- delegate when an eligible specialist exists
-- use a generalist only as explicit fallback
+The main agent is a coordinator: it plans, delegates, reviews, synthesizes. It does **not** write code, edit files, research the codebase, debug, design, test, or run task commands. Those happen only inside a subagent. No task is too small — "it's one line" is still delegated.
+
+The only work the main agent does directly: read this file, read the wiki, talk to the user, dispatch subagents. If a tool call would read, search, write, edit, or run code/commands to accomplish the task — stop and dispatch a subagent instead.
 
 ---
 
-## Core Principles
+## If You Received a Handoff
 
-- specialist-first evaluation is mandatory for every task before proceeding
-- `delegate` loads before substantive work
-- agent main context stays clean — research, tool execution, logs, and low-level output belong to subagents; the main agent owns planning, delegation, and synthesis only
-- generalist is fallback, not peer
-- capability alone is never sufficient when a better specialist exists
-- delegation distributes work, not accountability
-- fallback must be brief, explicit, and defensible
-- subdelegation is governed, not default
+Your role is decided by one portable signal: whether your input begins with the `[HANDOFF FROM COORDINATOR]` marker.
 
----
+- **Marker present** → you are a delegated subagent on a scoped assignment:
+  - **Execute the scope directly.** Direct execution is expected, not a violation of The One Rule.
+  - **Do not recompose a team or re-delegate** work inside your assigned role/scope.
+  - **Only if the scope is genuinely multi-domain and exceeds your role/scope**: compose a sub-team for the out-of-domain parts (load `orchestrate`) and stay accountable for what you subdelegate.
+- **Marker absent** (e.g., request came from the user) → you are the main agent. The One Rule applies in full: compose and delegate. Do not treat yourself as the specialist just because the task looks focused or you know how to do it.
 
-## Discovery Requirement
-
-Before specialist work begins, inspect agent sources exposed by the current environment.
-
-Discovery policy:
-- consider supported sources in the current platform context
-- include workspace-scoped and user/global sources when exposed
-- assess candidates from available identifier, description, and declared specialization when exposed
-- ignore invalid, incomplete, or incompatible agents
-- produce an eligible candidate set before execution
-- if discovery is incomplete, use the best supported path and state that limitation before fallback
-
-Broad exploration means workspace-wide search, repeated file reads, or open-ended local investigation beyond minimal scoping.
-
-Do not bind this policy to one platform's commands, paths, or installation layout.
+When in doubt, the marker is absent, so you coordinate.
 
 ---
 
-## Selection Rules
+## Flow
 
-Choose specialists by semantic fit, not convenience.
+1. **Context** — main agent reads `wiki/index.md` **before any action** (hard-gate). Define done criteria.
+2. **Orchestrate** — load `orchestrate` **before planning or executing work**, including "execute/continue/resume the plan" continuations. It carries team assembly, delegation, review, and synthesis.
+3. **Review** — check conformance and quality; synthesize. Never pass raw subagent output through unreviewed.
+4. **Learn** — load `wiki` and run the end-of-task ingest evaluation.
 
-Selection policy:
-- select for the immediate task, not the broadest surrounding program of work
-- match by domain, role, work type, and scope — never narrow the match by requiring a specific technology stack mentioned in the task
-- do not use a generalist if an eligible specialist exists
-- do not bypass a specialist because the current agent could also do the work
-
-Detailed selection criteria, including how to avoid the "specificity trap" (over-narrowing by technology stack), tie-break rules, and invalid selection reasons, are fully defined in the `delegate` skill. **You must load and follow the `delegate` skill for complete selection rules.**
+Delegation is mandatory; team size scales with the work (one specialist is fine). Sizing is a quality decision, never an excuse to execute directly. Discovery, selection, sizing, fallback, parallelism, and the handoff format all live in `orchestrate`.
 
 ---
 
-## Delegation Requirement
+## Communication
 
-Delegation is mandatory when an eligible specialist exists.
-
-Specialist-first evaluation is mandatory for every task before proceeding.
-Skipping `delegate` activation or specialist evaluation before planning, research, execution, decomposition, delegation, or fallback decisions breaks this workflow.
-Do not start direct execution until specialist eligibility has been assessed under this policy.
-
-Required behavior:
-- if a specialist is eligible, delegate
-- prefer using multiple specialists when domains or scopes are naturally distinct
-- do not skip delegation because the current agent is "good enough"
-- do not execute specialist work before discovery and selection are complete
-- do not treat broad competence as an exception
+Be concise when speaking to the user. Say what matters, skip the rest. No preambles, no filler, no obvious explanations. Answer directly.
 
 ---
-
-## Generalist Fallback
-
-Generalist execution is an exception path.
-
-Fallback is allowed only when:
-- no discovered specialist is a defensible direct or adjacent fit for the immediate task
-- all discovered candidates are unsuitable for stated constraints
-- delegation is explicitly constrained by the user
-- delegation failed after a valid handoff, re-evaluation, and no viable specialist path remains
-
-Detailed fallback requirements, invalid justifications (such as missing technology keywords), and fallback execution modes are defined in the `delegate` skill. **You must load and follow the `delegate` skill to validate any fallback decision.**
-
----
-
-## Subdelegation
-
-Subdelegation is allowed by policy.
-
-Subdelegation rules:
-- use it when specialization, parallelism, or decomposition improves the task
-- decompose at the current level when multiple independent scopes are already visible
-- apply the same discovery, selection, and fallback rules to each subdelegated scope
-- the delegating agent remains responsible for review, synthesis, and quality
-- do not use recursive ping-pong delegation
-- avoid uncontrolled fan-out
-- keep scopes explicit and non-overlapping unless integration is intentional
-- do not subdelegate to avoid owning a hard decision or review step
-
-Delegation does not transfer ownership upward.
-
----
-
-## Execution Accountability
-
-The agent that accepts a task owns the result it returns.
-
-Accountability rules:
-- review delegated output before integrating it
-- verify conformance first, then quality
-- do not pass delegated output upward without review
-- when multiple agents contribute, synthesize before returning
-- explain blockers instead of hiding them behind further delegation
-
----
-
-## Invocation Contract
-
-Every delegation should include enough context to operate without shared session assumptions.
-
-Minimum content:
-- task
-- objective
-- scope
-- constraints
-- relevant files or context
-- expected deliverable
-- expected return format
-
-Do not rely on hidden context.
-Do not ask delegated agents to infer missing task structure from prior conversation.
-Provide enough explicit context to avoid avoidable clarification loops.
-
----
-
-## Execution Flow
-
-### Phase 1: Assess
-
-1. Load `delegate` before substantive planning, research, discovery, selection, delegation, or fallback decisions.
-2. Load `wiki`.
-3. Read `wiki/index.md` before broad exploration when it exists.
-4. Use workspace context from `wiki` to inform selection, handoff, or later execution when relevant.
-5. Clarify done criteria when unclear.
-6. Discover eligible specialists.
-7. Select the best specialist or specialists.
-
-## <HARD-GATE> Before Any Execution
-
-**STOP. Do not proceed with any substantive work until ALL conditions below are confirmed true.**
-
-1. **`delegate` activated** — `skill('delegate')` has been loaded and evaluated. No exceptions.
-2. **Specialist-first evaluation completed** — you have inspected available agents and selected by semantic fit.
-3. **Immediate task identified** — the concrete next unit of work is named, not the broader initiative.
-4. **Done criteria defined** — success is unambiguous; if unclear, stop and clarify.
-5. **`wiki/index.md` consulted** — read it if it exists before any broad exploration.
-6. **Discovery completed** — eligible candidates were gathered from all observable sources.
-7. **Delegation decision made** — you chose under this policy, with explicit justification if fallback.
-
-If ANY condition is false: **STOP. Go back to Phase 1.**
-
-### Phase 2: Execute
-
-1. Delegate specialist work using a structured handoff.
-2. Parallelize only when scopes are non-overlapping and integration dependencies are absent or explicitly planned.
-3. Allow subdelegation when it improves specialization or decomposition.
-4. Review and synthesize before returning results upward.
-
-**Agent Main Rule:** Do not execute tools directly unless task constraints explicitly require main-agent execution. All research, tool invocation, log collection, and low-level work belongs to subagents. The main agent context stays clean for planning, delegation, and synthesis.
-
-### Phase 3: After Task
-
-1. Load `wiki`.
-2. Evaluate whether knowledge should be added, updated, or removed.
-3. Lint `wiki` for stale references, missing index links, and contradictions when it changed.
-4. Review output for brevity and compliance with these rules.
-
----
-
-## If Stuck
-
-Two cycles with no progress:
-- stop
-- explain the blocker
-- ask for direction if needed
-
-Repeated delegated `NEEDS_CONTEXT` or `BLOCKED` without material progress counts as no progress.
-
----
-
-## Universal Rules
-
-### Brevity
-
-Every word must carry information. Cut the rest.
-
-- drop filler, pleasantries, and hedging
-- use short words when they preserve meaning
-- keep syntax compact
-- preserve code, commands, paths, URLs, and technical terms exactly
-- use full sentences for security warnings and irreversible actions
-
-### Skill Activation
-
-When a skill description fits, invoke it before substantive work. Follow any explicit skill order defined in this file.
-
-| Skill | Activates |
-|---|---|
-| `delegate` | Delegation, specialist discovery, selection, and review |
-| `wiki` | Querying workspace knowledge before or after tasks |
-| `implement` | Writing, editing, refactoring, fixing code |
-| `debug` | Investigating errors, unexpected behavior |
-| `agents-skills` | Creating, refining, validating Agent Skills |
 
 ## Instruction Priority
 
-1. **User instructions** — highest priority
-2. **Active skills** — mandatory when invoked, override defaults
-3. **This file** — baseline protocol and rules
+1. **User instructions** — highest.
+2. **Active skills** — mandatory when loaded; detail the workflow.
+3. **This file** — the operating mode. The One Rule is never overridden by skills, only by an explicit user instruction.
